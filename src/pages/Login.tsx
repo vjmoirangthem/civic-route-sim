@@ -2,12 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSimulation } from '@/context/SimulationContext';
+import { useSimulationSyncContext } from '@/context/SimulationSyncContext';
 import { User, Shield, MapPin, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { userRole, setUserRole } = useSimulation();
+  const { userRole, setUserRole } = useSimulationSyncContext();
 
   const handleContinue = () => {
     if (userRole === 'citizen') {
