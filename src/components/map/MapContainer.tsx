@@ -12,6 +12,7 @@ interface MapContainerProps {
   highlightCitizen?: Citizen | null;
   onCitizenClick?: (citizen: Citizen) => void;
   className?: string;
+  primaryTruckId?: string; // Filter to show only this truck (for citizen view)
 }
 
 const MapContainer: React.FC<MapContainerProps> = ({
@@ -21,6 +22,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
   highlightCitizen,
   onCitizenClick,
   className = '',
+  primaryTruckId,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -114,16 +116,35 @@ const MapContainer: React.FC<MapContainerProps> = ({
     });
   }, [routes, mapLoaded, showRoutes]);
 
-  // Update truck markers
+  // Update truck markers - filter by primaryTruckId if specified
   useEffect(() => {
     if (!mapRef.current || !mapLoaded || !showTrucks) return;
 
-    trucks.forEach((truck) => {
+    // Filter trucks if primaryTruckId is set
+    const trucksToShow = primaryTruckId 
+      ? trucks.filter(t => t.id === primaryTruckId)
+      : trucks;
+
+    // Remove markers for trucks that shouldn't be shown anymore
+    Object.keys(markersRef.current).forEach(markerId => {
+      if (markerId.startsWith('truck-')) {
+        const truckId = markerId.replace('truck-', '');
+        const shouldShow = trucksToShow.some(t => t.id === truckId);
+        if (!shouldShow) {
+          markersRef.current[markerId].remove();
+          delete markersRef.current[markerId];
+        }
+      }
+    });
+
+    trucksToShow.forEach((truck) => {
       const markerId = `truck-${truck.id}`;
       
       if (markersRef.current[markerId]) {
+        // Update existing marker position
         markersRef.current[markerId].setLngLat(truck.currentPosition);
       } else {
+        // Create new marker
         const el = document.createElement('div');
         el.className = 'truck-marker';
         el.innerHTML = `
@@ -158,7 +179,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
         markersRef.current[markerId] = marker;
       }
     });
-  }, [trucks, mapLoaded, showTrucks]);
+  }, [trucks, mapLoaded, showTrucks, primaryTruckId]);
 
   // Add citizen markers
   useEffect(() => {

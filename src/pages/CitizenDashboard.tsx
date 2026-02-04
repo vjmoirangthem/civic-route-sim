@@ -111,6 +111,7 @@ const CitizenDashboard: React.FC = () => {
             showTrucks
             showRoutes
             highlightCitizen={selectedCitizen}
+            primaryTruckId="truck1"
             className="absolute inset-0"
           />
 
