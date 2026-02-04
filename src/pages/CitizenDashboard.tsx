@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSimulation } from '@/context/SimulationContext';
+import { useSimulationSyncContext } from '@/context/SimulationSyncContext';
 import MapContainer from '@/components/map/MapContainer';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { ArrowLeft, MapPin, Truck, Clock, Bell, Home, Navigation } from 'lucide-react';
+import { ArrowLeft, MapPin, Truck, Clock, Bell, Home, Navigation, Loader2 } from 'lucide-react';
 
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -17,9 +17,10 @@ const CitizenDashboard: React.FC = () => {
     setSelectedCitizen,
     isRunning,
     notifications,
+    isLoading,
     getETAForCitizen,
     getDistanceToTruck,
-  } = useSimulation();
+  } = useSimulationSyncContext();
 
   const [eta, setEta] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
@@ -60,6 +61,17 @@ const CitizenDashboard: React.FC = () => {
   };
 
   const recentNotifications = notifications.slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading simulation data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

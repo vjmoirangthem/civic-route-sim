@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { useSimulation } from '@/context/SimulationContext';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useSimulationSyncContext } from '@/context/SimulationSyncContext';
 import MapContainer from '@/components/map/MapContainer';
 import StatusBadge from '@/components/ui/StatusBadge';
 import {
@@ -18,6 +19,7 @@ import {
   Users,
   Gauge,
   Settings,
+  Loader2,
 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
@@ -29,12 +31,13 @@ const AdminDashboard: React.FC = () => {
     trucks,
     routes,
     citizens,
+    isLoading,
     startSimulation,
     pauseSimulation,
     resetSimulation,
     setSimulationSpeed,
     updateTruckSpeed,
-  } = useSimulation();
+  } = useSimulationSyncContext();
 
   // Redirect if not admin
   useEffect(() => {
@@ -46,6 +49,17 @@ const AdminDashboard: React.FC = () => {
   const collectedCount = citizens.filter(c => c.status === 'collected').length;
   const pendingCount = citizens.filter(c => c.status === 'pending').length;
   const approachingCount = citizens.filter(c => c.status === 'approaching').length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading simulation data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
