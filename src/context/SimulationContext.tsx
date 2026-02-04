@@ -157,9 +157,12 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           if (!route) return truck;
 
           // Calculate progress increment based on speed
-          // Assuming route totalDistance in km, speed in km/h
-          const progressIncrement = (truck.speed * simulationSpeed * deltaTime) / (route.totalDistance * 3600);
-          const newProgress = Math.min(truck.progress + progressIncrement * 100, 1);
+          // speed in km/h, totalDistance in km, deltaTime in seconds
+          // progress = distance_traveled / total_distance
+          // distance_traveled = speed * time = (speed km/h) * (deltaTime s) / 3600 s/h
+          const distanceTraveled = (truck.speed * simulationSpeed * deltaTime) / 3600; // km
+          const progressIncrement = distanceTraveled / route.totalDistance;
+          const newProgress = Math.min(truck.progress + progressIncrement, 1);
           const newPosition = interpolatePosition(route, newProgress);
 
           return {
